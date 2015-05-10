@@ -71,4 +71,210 @@ describe("inventoryService", function() {
     rootScope.$apply();
     httpBackend.flush();
   });
+
+
+  it('Read empty inventory', function(done) {
+    service.read().then(function(response) {
+      expect(response.books).toBeUndefined();
+      done();
+    });
+  });
+
+  it('Save inventory', function(done) {
+    var books = null,
+      validBookEntry = {
+        "kind": "books#volume",
+        "id": "lwz8ZwEACAAJ",
+        "etag": "b3Rk7DgfRR8",
+        "selfLink": "https://www.googleapis.com/books/v1/volumes/lwz8ZwEACAAJ",
+        "volumeInfo": {
+          "title": "EJB 3.1 professionell",
+          "subtitle": "Grundlagen- und Expertenwissen zu Enterprise JavaBeans 3.1 - inkl. JPA 2.0",
+          "publishedDate": "2011",
+          "industryIdentifiers": [{
+            "type": "ISBN_10",
+            "identifier": "3898646122"
+          }, {
+            "type": "ISBN_13",
+            "identifier": "9783898646123"
+          }],
+          "readingModes": {
+            "text": false,
+            "image": false
+          },
+          "pageCount": 592,
+          "printType": "BOOK",
+          "contentVersion": "preview-1.0.0",
+          "language": "de",
+          "previewLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&cd=1&source=gbs_api",
+          "infoLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&source=gbs_api",
+          "canonicalVolumeLink": "http://books.google.de/books/about/EJB_3_1_professionell.html?hl=&id=lwz8ZwEACAAJ"
+        }
+      };
+    var bookToSave = {
+      value: validBookEntry
+    };
+    service.save(bookToSave).then(function(response) {
+      expect(response.books.length).toEqual(1);
+      done();
+    });
+    rootScope.$apply();
+  });
+
+  it('remove book in inventory', function(done) {
+    var books = null,
+      validBookEntry = {
+        "kind": "books#volume",
+        "id": "lwz8ZwEACAAJ",
+        "etag": "b3Rk7DgfRR8",
+        "selfLink": "https://www.googleapis.com/books/v1/volumes/lwz8ZwEACAAJ",
+        "volumeInfo": {
+          "title": "EJB 3.1 professionell",
+          "subtitle": "Grundlagen- und Expertenwissen zu Enterprise JavaBeans 3.1 - inkl. JPA 2.0",
+          "publishedDate": "2011",
+          "industryIdentifiers": [{
+            "type": "ISBN_10",
+            "identifier": "3898646122"
+          }, {
+            "type": "ISBN_13",
+            "identifier": "9783898646123"
+          }],
+          "readingModes": {
+            "text": false,
+            "image": false
+          },
+          "pageCount": 592,
+          "printType": "BOOK",
+          "contentVersion": "preview-1.0.0",
+          "language": "de",
+          "previewLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&cd=1&source=gbs_api",
+          "infoLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&source=gbs_api",
+          "canonicalVolumeLink": "http://books.google.de/books/about/EJB_3_1_professionell.html?hl=&id=lwz8ZwEACAAJ"
+        }
+      };
+    var bookToSave = {
+      value: validBookEntry
+    };
+    service.save(bookToSave).then(function(response) {
+      expect(response.books.length).toEqual(1);
+      service.remove(bookToSave).then(function(response) {
+        service.read().then(function(readResponse) {
+          expect(readResponse.books.length).toEqual(0);
+          done();
+        });
+        rootScope.$apply();
+      });
+      rootScope.$apply();
+    });
+    rootScope.$apply();
+  });
+
+  it('increase amount in inventory', function(done) {
+    var books = null,
+      validBookEntry = {
+        "kind": "books#volume",
+        "id": "lwz8ZwEACAAJ",
+        "etag": "b3Rk7DgfRR8",
+        "selfLink": "https://www.googleapis.com/books/v1/volumes/lwz8ZwEACAAJ",
+        "volumeInfo": {
+          "title": "EJB 3.1 professionell",
+          "subtitle": "Grundlagen- und Expertenwissen zu Enterprise JavaBeans 3.1 - inkl. JPA 2.0",
+          "publishedDate": "2011",
+          "industryIdentifiers": [{
+            "type": "ISBN_10",
+            "identifier": "3898646122"
+          }, {
+            "type": "ISBN_13",
+            "identifier": "9783898646123"
+          }],
+          "readingModes": {
+            "text": false,
+            "image": false
+          },
+          "pageCount": 592,
+          "printType": "BOOK",
+          "contentVersion": "preview-1.0.0",
+          "language": "de",
+          "previewLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&cd=1&source=gbs_api",
+          "infoLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&source=gbs_api",
+          "canonicalVolumeLink": "http://books.google.de/books/about/EJB_3_1_professionell.html?hl=&id=lwz8ZwEACAAJ"
+        }
+      };
+    var bookToSave = {
+      value: validBookEntry
+    };
+    service.save(bookToSave).then(function(response) {
+      books = response.books;
+      expect(books.length).toEqual(1);
+      var updatedEntry = {
+        count: 4,
+        value: validBookEntry
+      };
+      service.save(updatedEntry).then(function(saveResponse) {
+        service.read().then(function(readResponse) {
+          expect(readResponse.books.length).toEqual(4);
+          service.remove(updatedEntry).then(function(response) {
+            done();
+          });
+          rootScope.$apply();
+        });
+        rootScope.$apply();
+      });
+      rootScope.$apply();
+    });
+    rootScope.$apply();
+  });
+
+
+  it('Reduce amount in inventory', function(done) {
+    var books = null,
+      validBookEntry = {
+        "kind": "books#volume",
+        "id": "lwz8ZwEACAAJ",
+        "etag": "b3Rk7DgfRR8",
+        "selfLink": "https://www.googleapis.com/books/v1/volumes/lwz8ZwEACAAJ",
+        "volumeInfo": {
+          "title": "EJB 3.1 professionell",
+          "subtitle": "Grundlagen- und Expertenwissen zu Enterprise JavaBeans 3.1 - inkl. JPA 2.0",
+          "publishedDate": "2011",
+          "industryIdentifiers": [{
+            "type": "ISBN_10",
+            "identifier": "3898646122"
+          }, {
+            "type": "ISBN_13",
+            "identifier": "9783898646123"
+          }],
+          "readingModes": {
+            "text": false,
+            "image": false
+          },
+          "pageCount": 592,
+          "printType": "BOOK",
+          "contentVersion": "preview-1.0.0",
+          "language": "de",
+          "previewLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&cd=1&source=gbs_api",
+          "infoLink": "http://books.google.de/books?id=lwz8ZwEACAAJ&dq=:isbn%3D3898646122&hl=&source=gbs_api",
+          "canonicalVolumeLink": "http://books.google.de/books/about/EJB_3_1_professionell.html?hl=&id=lwz8ZwEACAAJ"
+        }
+      };
+    var bookToSave = {
+      count: 4,
+      value: validBookEntry
+    }
+    service.save(bookToSave).then(function(response) {
+      books = response.books;
+      expect(books.length).toEqual(4);
+      var updatedEntry = {
+        count: 1,
+        value: validBookEntry
+      }
+      service.save(updatedEntry).then(function(saveResponse) {
+        service.read().then(function(readResponse) {
+          expect(readResponse.books.length).toEqual(1);
+          done();
+        });
+      });
+    });
+    rootScope.$apply();
+  });
 });
